@@ -1,60 +1,160 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Loader2 } from "lucide-react"
 
-// This is a placeholder component that will be replaced with actual Spline integration
 export default function SplineModel() {
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    // Simulate loading of 3D model
-    const timer = setTimeout(() => {
-      setIsLoaded(true)
-    }, 1500)
-
-    return () => clearTimeout(timer)
+    setIsMounted(true)
   }, [])
 
+  if (!isMounted) return null
+
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      {!isLoaded ? (
-        <div className="flex flex-col items-center">
-          <Loader2 className="h-10 w-10 text-primary animate-spin mb-2" />
-          <p className="text-sm text-muted-foreground">Loading 3D Model...</p>
-        </div>
-      ) : (
-        <Suspense fallback={<Loader2 className="h-10 w-10 text-primary animate-spin" />}>
-          <motion.div
-            className="w-full h-full bg-gradient-to-br from-primary/10 via-background to-secondary/10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
+    <div className="w-full h-full flex items-center justify-center overflow-hidden">
+      <motion.div
+        className="w-full h-full"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <svg
+          viewBox="0 0 1000 800"
+          className="w-full h-full"
+          preserveAspectRatio="xMidYMid slice"
+          style={{ filter: "drop-shadow(0 0 30px rgba(var(--primary-rgb), 0.1))" }}
+        >
+          {/* Animated background gradients */}
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: "hsl(var(--primary))", stopOpacity: 0.1 }} />
+              <stop offset="100%" style={{ stopColor: "hsl(var(--secondary))", stopOpacity: 0.05 }} />
+            </linearGradient>
+            <radialGradient id="radial1" cx="30%" cy="30%">
+              <stop offset="0%" style={{ stopColor: "hsl(var(--primary))", stopOpacity: 0.15 }} />
+              <stop offset="100%" style={{ stopColor: "hsl(var(--primary))", stopOpacity: 0 }} />
+            </radialGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          {/* Background shapes */}
+          <rect width="1000" height="800" fill="url(#grad1)" />
+          <circle cx="200" cy="150" r="300" fill="url(#radial1)" />
+          <circle cx="800" cy="600" r="250" fill="url(#radial1)" />
+
+          {/* Animated geometric shapes */}
+          <motion.g
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+            style={{ transformOrigin: "500px 400px" }}
           >
-            {/* 
-              This is where the actual Spline component would be integrated.
-              For now, we're using a placeholder gradient background.
-              
-              Example integration:
-              <Spline scene="https://prod.spline.design/your-scene-id/scene.splinecode" />
-            */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-10">
-              <div className="relative w-full h-full">
-                <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/20 rounded-full filter blur-xl animate-pulse"></div>
-                <div
-                  className="absolute top-1/3 right-1/3 w-48 h-48 bg-secondary/20 rounded-full filter blur-xl animate-pulse"
-                  style={{ animationDelay: "1s" }}
-                ></div>
-                <div
-                  className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-primary/20 rounded-full filter blur-xl animate-pulse"
-                  style={{ animationDelay: "2s" }}
-                ></div>
-              </div>
-            </div>
-          </motion.div>
-        </Suspense>
-      )}
+            <polygon
+              points="500,100 650,250 550,400 450,400 350,250"
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="2"
+              opacity="0.3"
+            />
+          </motion.g>
+
+          <motion.g
+            animate={{ rotate: -360 }}
+            transition={{ duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+            style={{ transformOrigin: "500px 400px" }}
+          >
+            <circle cx="500" cy="400" r="200" fill="none" stroke="hsl(var(--primary))" strokeWidth="1" opacity="0.2" />
+            <circle cx="500" cy="400" r="150" fill="none" stroke="hsl(var(--primary))" strokeWidth="1" opacity="0.3" />
+            <circle cx="500" cy="400" r="100" fill="none" stroke="hsl(var(--primary))" strokeWidth="1" opacity="0.4" />
+          </motion.g>
+
+          {/* Animated dots */}
+          {[...Array(6)].map((_, i) => (
+            <motion.circle
+              key={i}
+              cx={500 + 150 * Math.cos((i * Math.PI) / 3)}
+              cy={400 + 150 * Math.sin((i * Math.PI) / 3)}
+              r="6"
+              fill="hsl(var(--primary))"
+              opacity="0.6"
+              animate={{
+                r: [6, 10, 6],
+                opacity: [0.6, 0.9, 0.6],
+              }}
+              transition={{
+                duration: 2,
+                delay: i * 0.2,
+                repeat: Number.POSITIVE_INFINITY,
+              }}
+            />
+          ))}
+
+          {/* Flowing lines */}
+          <motion.line
+            x1="500"
+            y1="100"
+            x2="500"
+            y2="700"
+            stroke="hsl(var(--primary))"
+            strokeWidth="1"
+            opacity="0.1"
+            animate={{ opacity: [0.1, 0.3, 0.1] }}
+            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
+          />
+          <motion.line
+            x1="200"
+            y1="400"
+            x2="800"
+            y2="400"
+            stroke="hsl(var(--primary))"
+            strokeWidth="1"
+            opacity="0.1"
+            animate={{ opacity: [0.1, 0.3, 0.1] }}
+            transition={{ duration: 3, delay: 1, repeat: Number.POSITIVE_INFINITY }}
+          />
+
+          {/* Pulsing central element */}
+          <motion.circle
+            cx="500"
+            cy="400"
+            r="50"
+            fill="hsl(var(--primary))"
+            opacity="0.1"
+            animate={{ r: [50, 80, 50] }}
+            transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
+          />
+          <circle cx="500" cy="400" r="30" fill="hsl(var(--primary))" opacity="0.2" />
+
+          {/* Corner accents */}
+          {[
+            { x: 100, y: 100 },
+            { x: 900, y: 100 },
+            { x: 100, y: 700 },
+            { x: 900, y: 700 },
+          ].map((pos, i) => (
+            <motion.g key={i} style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}>
+              <motion.circle
+                cx={pos.x}
+                cy={pos.y}
+                r="40"
+                fill="none"
+                stroke="hsl(var(--primary))"
+                strokeWidth="2"
+                opacity="0.2"
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 10 + i, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              />
+            </motion.g>
+          ))}
+        </svg>
+      </motion.div>
     </div>
   )
 }
